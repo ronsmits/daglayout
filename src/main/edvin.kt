@@ -14,6 +14,7 @@ class Vertex(text: String) : Pane() {
     }
 
     override fun layoutChildren() {
+        println("called");
         val textLb = textNode.layoutBounds
         val textX = (width / 2) - (textLb.width / 2)
         val textY = (height / 2) - (textLb.height / 2)
