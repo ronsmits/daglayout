@@ -1,5 +1,8 @@
 package nl.codetribe.daglayout;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.geometry.Bounds;
@@ -15,6 +18,8 @@ public class Vertex extends Pane {
     private Text textNode;
     private Circle bottomPort;
     private Circle topPort;
+    private List<Vertex> kids = new ArrayList<>();
+    private Vertex dad;
 
     private final static double textHorizontalPadding = 25;
     private final static double textVerticalPadding = 25;
@@ -28,13 +33,16 @@ public class Vertex extends Pane {
 
     private final DoubleProperty topYProperty = new SimpleDoubleProperty();
 
-    public Vertex(String label) {
+    public Vertex(String label){
+        this(label, null);
+    }
+    public Vertex(String label, Vertex dad) {
         textNode = new Text(label);
         bottomPort = new Circle(circleRadius, Color.RED);
         bottomPort.setStyle("-fx-fill: red");
         topPort = new Circle(circleRadius, Color.RED);
         topPort.setStyle("-fx-fill: red");
-        setStyle("-fx-background-color: transparent; -fx-border-color: black;-fx-arc-height: 15px; -fx-arc-width: 15px");
+        setStyle("-fx-background-color: cadetblue; -fx-border-color: black;-fx-arc-height: 15px; -fx-arc-width: 15px");
         getChildren().addAll(textNode, bottomPort, topPort);
         bottomYProperty.bind(layoutYProperty().add(heightProperty()));
         bottomXProperty.bind(layoutXProperty().add(widthProperty().divide(2)));
@@ -104,5 +112,38 @@ public class Vertex extends Pane {
     @Override
     protected double computeMinHeight(double width) {
         return computePrefHeight(width);
+    }
+
+    @Override
+    public String toString()
+    {
+        return String.format("Vertex[X: %f, Y: %f, width: %f, height: %f]", layoutXProperty().doubleValue(),
+            layoutYProperty().doubleValue(), widthProperty().doubleValue(), heightProperty().doubleValue());
+    }
+
+    public List<Vertex> getKids()
+    {
+        return kids;
+    }
+
+    public void setKids(List<Vertex> kids)
+    {
+        this.kids = kids;
+    }
+
+    public Vertex getDad()
+    {
+        return dad;
+    }
+
+    public void setDad(Vertex dad)
+    {
+        this.dad = dad;
+    }
+
+    public void addKid(Vertex vertex)
+    {
+        vertex.setDad(this);
+        kids.add(vertex);
     }
 }
