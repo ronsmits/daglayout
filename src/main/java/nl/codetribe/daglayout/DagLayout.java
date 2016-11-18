@@ -19,7 +19,9 @@ public class DagLayout extends Pane
 
     public DagLayout(Vertex rootVertex)
     {
+
         group = new Group();
+
         this.rootVertex = rootVertex;
         this.getChildren().add(group);
         group.getChildren().add(rootVertex);
@@ -47,6 +49,20 @@ public class DagLayout extends Pane
     {
         System.out.println("called");
         doLayout(rootVertex);
+        System.out.println(group.getLayoutBounds());
+    }
+
+    @Override
+    protected double computePrefWidth(double height)
+    {
+        System.out.println("pane layout "+group.getLayoutBounds());
+        return group.getLayoutBounds().getWidth()*2;
+    }
+
+    @Override
+    protected double computePrefHeight(double width)
+    {
+        return group.getLayoutBounds().getHeight();
     }
 
     private void doLayout(Vertex parent)
@@ -118,15 +134,35 @@ public class DagLayout extends Pane
         double left = parent.getLayoutX()-middle;
         double d = left - parent.getKids().get(0).getLayoutX();
         System.out.println("d is "+d);
-        if(d>0)
+        if(d>0) {
         for(Vertex v : parent.getKids())
         {
-            System.out.println("v.getWidth "+v.getWidth());
+            System.out.println("v.getWidth " + v.getWidth());
             v.relocate(left, v.getLayoutY());
-            System.out.println("left: "+left);
-            left+=v.getWidth()+horizontal_distance;
-            System.out.println("left: "+left);
-
+            System.out.println("left: " + left);
+            left += v.getWidth() + horizontal_distance;
+            System.out.println("left: " + left);
+        }
         }
     }
+    @Override
+    protected double computeMaxWidth(double height) {
+        return computePrefWidth(height);
+    }
+
+    @Override
+    protected double computeMaxHeight(double width) {
+        return computePrefHeight(width);
+    }
+
+    @Override
+    protected double computeMinWidth(double height) {
+        return computePrefWidth(height);
+    }
+
+    @Override
+    protected double computeMinHeight(double width) {
+        return computePrefHeight(width);
+    }
+
 }
