@@ -59,6 +59,8 @@ public class TestMain extends Application {
         Vertex kid2 = new Vertex("kid 2");
         rootVertex.addKid(kid1);
         rootVertex.addKid(kid2);
+        kid1.addKid(new Vertex("grandkid 1.1"));
+        kid1.addKid(new Vertex("grandkid 1.2"));
         kid2.addKid(new Vertex("grandkid1"));
         kid2.addKid(new Vertex("grandkid2"));
         group.getChildren().add(new DagLayout(rootVertex));

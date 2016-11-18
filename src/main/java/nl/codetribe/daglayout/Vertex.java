@@ -38,16 +38,33 @@ public class Vertex extends Pane {
     }
     public Vertex(String label, Vertex dad) {
         textNode = new Text(label);
-        bottomPort = new Circle(circleRadius, Color.RED);
-        bottomPort.setStyle("-fx-fill: red");
-        topPort = new Circle(circleRadius, Color.RED);
-        topPort.setStyle("-fx-fill: red");
+        createPorts();
         setStyle("-fx-background-color: cadetblue; -fx-border-color: black;-fx-arc-height: 15px; -fx-arc-width: 15px");
         getChildren().addAll(textNode, bottomPort, topPort);
+        setPortProperties();
+
+        if (dad == null){
+            getProperties().put("level", 0);
+        } else
+            getProperties().put("level", dad.getLevel()+1);
+    }
+
+    private void setPortProperties() {
         bottomYProperty.bind(layoutYProperty().add(heightProperty()));
         bottomXProperty.bind(layoutXProperty().add(widthProperty().divide(2)));
         topXProperty.bind(bottomXProperty);
         topYProperty.bind(layoutYProperty());
+    }
+
+    private void createPorts() {
+        bottomPort = new Circle(circleRadius, Color.RED);
+        bottomPort.setStyle("-fx-fill: red");
+        topPort = new Circle(circleRadius, Color.RED);
+        topPort.setStyle("-fx-fill: red");
+    }
+
+    public int getLevel(){
+        return (Integer) getProperties().get("level");
     }
 
     @Override
@@ -117,7 +134,7 @@ public class Vertex extends Pane {
     @Override
     public String toString()
     {
-        return String.format("Vertex[X: %f, Y: %f, width: %f, height: %f]", layoutXProperty().doubleValue(),
+        return String.format("Vertex[text: %s, X: %f, Y: %f, width: %f, height: %f]", textNode.getText(), layoutXProperty().doubleValue(),
             layoutYProperty().doubleValue(), widthProperty().doubleValue(), heightProperty().doubleValue());
     }
 
