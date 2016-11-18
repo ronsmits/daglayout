@@ -21,6 +21,7 @@ public class Vertex extends Pane {
     private List<Vertex> kids = new ArrayList<>();
     private Vertex dad;
 
+
     private final static double textHorizontalPadding = 25;
     private final static double textVerticalPadding = 25;
     private final static double circleRadius = 2;
@@ -32,6 +33,7 @@ public class Vertex extends Pane {
 
 
     private final DoubleProperty topYProperty = new SimpleDoubleProperty();
+    private boolean layedOut;
 
     public Vertex(String label){
         this(label, null);
@@ -161,6 +163,32 @@ public class Vertex extends Pane {
     public void addKid(Vertex vertex)
     {
         vertex.setDad(this);
+        vertex.setLevel(getLevel()+1);
         kids.add(vertex);
+    }
+
+    public void setLevel(int level)
+    {
+        getProperties().put("level", level);
+    }
+
+    public boolean isLayedOut()
+    {
+        return layedOut;
+    }
+
+    public void setLayedOut(boolean layedOut)
+    {
+        this.layedOut = layedOut;
+    }
+
+    public double getKidsSize() {
+        double size =0;
+        for (Vertex kid : kids)
+        {
+            size+=kid.getWidth();
+        }
+        return size;
+
     }
 }

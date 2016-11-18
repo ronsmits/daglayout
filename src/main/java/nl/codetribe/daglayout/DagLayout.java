@@ -6,8 +6,6 @@ import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Line;
 
-import java.util.function.Predicate;
-
 /**
  * Created by ronsmi on 11/17/2016.
  */
@@ -47,43 +45,88 @@ public class DagLayout extends Pane
     @Override
     protected void layoutChildren()
     {
+        System.out.println("called");
         doLayout(rootVertex);
     }
 
     private void doLayout(Vertex parent)
     {
-        System.out.println("doLayout");
-        double height = parent.getLayoutY()+parent.getHeight()+vertical_distance;
-        System.out.println("height will be: " +height);
+        double height = parent.getBottomYProperty().doubleValue()+vertical_distance;
+        double width = 0;
+
         FilteredList<Node> filtered = group.getChildren().filtered(node -> {
             if (node instanceof Vertex) {
                 Vertex xx = (Vertex) node;
-                //System.out.println("in for loop :"+xx+" "+node.getLayoutX());
-                if(height==node.getLayoutY()){
-                    System.out.println("found");
+                if(xx.getLevel()==parent.getLevel()+1 /*&& xx.isLayedOut()*/){
                     return true;
                 }
 
             }
             return false;
         });
-        double width = parent.getBottomXProperty().doubleValue();
+
+        double highestX=0;
+        for (Node node : filtered)
+        {
+            if(node.getLayoutX()>highestX) {
+                highestX = node.getLayoutX();
+                width=((Vertex)node).getLayoutBounds().getWidth();
+            }
+
+        }
+        System.out.println("width "+width);
+        width += highestX+horizontal_distance;
+        System.out.println("width "+width);
+
+        if(width==0) width = parent.getBottomXProperty().doubleValue()-(parent.getKids().get(0).getWidth()/2);
+        if(parent.getKids().size()==1){
+            width=parent.getBottomXProperty().doubleValue()-(parent.getKidsSize()/2);
+        }
         for(Vertex vertex : parent.getKids()){
-            vertex.relocate(width-(getWidth()/2), parent.getLayoutY()+parent.getHeight()+vertical_distance);
+            vertex.relocate(width, height);
+            vertex.setLayedOut(true);
             width += vertex.getLayoutBounds().getWidth()+horizontal_distance;
-            if(parent.getKids().size()>1)
-                parent.relocate(((width-horizontal_distance)/2)-(parent.getWidth()/2), parent.getLayoutY());
+            if(parent.getKids().size()>0)
+            {
+                centerParent(parent);
+                //parent.relocate(((width - horizontal_distance) / 2) - (parent.getWidth() / 2), parent.getLayoutY());
+            }
             doLayout(vertex);
         }
-//        FilteredList<Node> filtered = group.getChildren().filtered(node -> {
-//            if (node instanceof Vertex) {
-//                if (node.getLayoutY()==height) {
-//                    System.out.println("found one");
-//
-//                    return true;
-//                }
-//            }
-//            return false;
-//        });
+
+    }
+    private void centerParent(Vertex parent) {
+        double distance = (parent.getKids().get(parent.getKids().size()-1).getLayoutX()) - (parent.getKids().get(0).getLayoutX());
+        double X;
+        X = parent.getKids().get(0).getLayoutX() +(distance/2);
+        if (X > parent.getLayoutX())
+            parent.relocate(X, parent.getLayoutY());
+        else
+            centerKids(parent);
+
+        if(parent.getDad()!=null){
+            centerParent(parent.getDad());
+        }
+    }
+
+    private void centerKids(Vertex parent)
+    {
+        double size =parent.getKidsSize();
+        size += horizontal_distance*(parent.getKids().size()-2);
+        System.out.println("size"+size);
+        double middle = size/2;
+        double left = parent.getLayoutX()-middle;
+        double d = left - parent.getKids().get(0).getLayoutX();
+        System.out.println("d is "+d);
+        if(d>0)
+        for(Vertex v : parent.getKids())
+        {
+            System.out.println("v.getWidth "+v.getWidth());
+            v.relocate(left, v.getLayoutY());
+            System.out.println("left: "+left);
+            left+=v.getWidth()+horizontal_distance;
+            System.out.println("left: "+left);
+
+        }
     }
 }

@@ -54,19 +54,28 @@ public class TestMain extends Application {
 //        c.relocate(300, 300);
 //        group.getChildren().forEach(it-> System.out.println(it));
 
-        Vertex rootVertex = new Vertex("inside dag");
-        Vertex kid1 = new Vertex("kid 1");
-        Vertex kid2 = new Vertex("kid 2");
-        rootVertex.addKid(kid1);
-        rootVertex.addKid(kid2);
-        kid1.addKid(new Vertex("grandkid 1.1"));
-        kid1.addKid(new Vertex("grandkid 1.2"));
-        kid2.addKid(new Vertex("grandkid1"));
-        kid2.addKid(new Vertex("grandkid2"));
+        Vertex rootVertex = new Vertex("1");
+        Vertex k11 = new Vertex("1.1");
+        Vertex k111 = new Vertex("1.1.1");
+        Vertex k112 = new Vertex("1.1.2");
+        Vertex k1121 = new Vertex("1.1.2.1");
+        Vertex k1111 = new Vertex("1.1.1.1");
+        rootVertex.addKid(k11);
+        k11.addKid(k111);
+        k11.addKid(k112);
+        k112.addKid(k1121);
+        k111.addKid(k1111);
+        Vertex k12 = new Vertex("1.2");
+        Vertex k121 = new Vertex("1.2.1");
+        Vertex k1211 = new Vertex("1.2.1.1");
+        Vertex l1212 = new Vertex("1.2.1.2");
+        rootVertex.addKid(k12);
+        k12.addKid(k121);
+        k121.addKid(k1211);
+        k121.addKid(l1212);
         group.getChildren().add(new DagLayout(rootVertex));
         primaryStage.setScene(scene);
         primaryStage.show();
-        System.out.println("I am here");
     }
 
     public static void main(String[] args) {
