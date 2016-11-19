@@ -9,16 +9,14 @@ import javafx.scene.shape.Line;
 /**
  * Created by ronsmi on 11/17/2016.
  */
-public class DagLayout extends Pane
-{
+public class DagLayout extends Pane {
     private static double vertical_distance = 50;
     private static double horizontal_distance = 50;
 
     private Vertex rootVertex;
     private final Group group;
 
-    public DagLayout(Vertex rootVertex)
-    {
+    public DagLayout(Vertex rootVertex) {
 
         group = new Group();
 
@@ -27,53 +25,63 @@ public class DagLayout extends Pane
         group.getChildren().add(rootVertex);
         if (rootVertex.getKids() != null)
             for (Vertex v : rootVertex.getKids())
-            addKids(v, group);
+                addKids(v, group);
         //        doLayout(rootVertex);
     }
 
-    private void addKids(Vertex vertex, Group group)
-    {
-            group.getChildren().add(vertex);
-            Line line = new Line();
-            group.getChildren().add(line);
-            line.startYProperty().bind(vertex.getDad().getBottomYProperty());
-            line.startXProperty().bind(vertex.getDad().getBottomXProperty());
-            line.endYProperty().bind(vertex.getTopYProperty());
-            line.endXProperty().bind(vertex.getTopXProperty());
-        for(Vertex v : vertex.getKids())
+    private void addKids(Vertex vertex, Group group) {
+        group.getChildren().add(vertex);
+        Line line = new Line();
+        group.getChildren().add(line);
+        line.startYProperty().bind(vertex.getDad().getBottomYProperty());
+        line.startXProperty().bind(vertex.getDad().getBottomXProperty());
+        line.endYProperty().bind(vertex.getTopYProperty());
+        line.endXProperty().bind(vertex.getTopXProperty());
+        for (Vertex v : vertex.getKids())
             addKids(v, group);
     }
 
     @Override
-    protected void layoutChildren()
-    {
+    protected void layoutChildren() {
         System.out.println("called");
         doLayout(rootVertex);
-        System.out.println(group.getLayoutBounds());
+        System.out.println(group.getBoundsInLocal());
+    }
+
+
+    @Override
+    protected double computePrefWidth(double height) {
+        double maxwidth = 0;
+
+        for (Node node : getChildren()) {
+            if (node instanceof Vertex) {
+                Vertex v = (Vertex) node;
+                if ((v.getLayoutX() + v.getWidth()) > maxwidth)
+                    maxwidth = v.getLayoutX() + v.getWidth();
+            }
+        }
+        return maxwidth;
     }
 
     @Override
-    protected double computePrefWidth(double height)
-    {
-        System.out.println("pane layout "+group.getLayoutBounds());
-        return group.getLayoutBounds().getWidth()*2;
+    protected double computePrefHeight(double width) {
+        double maxheight = 0;
+
+        for (Node node : getChildren()) {
+            if ((node.getLayoutY() + node.getLayoutBounds().getHeight()) > maxheight)
+                maxheight = node.getLayoutX() + node.getLayoutBounds().getHeight();
+        }
+        return maxheight;
     }
 
-    @Override
-    protected double computePrefHeight(double width)
-    {
-        return group.getLayoutBounds().getHeight();
-    }
-
-    private void doLayout(Vertex parent)
-    {
-        double height = parent.getBottomYProperty().doubleValue()+vertical_distance;
+    private void doLayout(Vertex parent) {
+        double height = parent.getBottomYProperty().doubleValue() + vertical_distance;
         double width = 0;
 
         FilteredList<Node> filtered = group.getChildren().filtered(node -> {
             if (node instanceof Vertex) {
                 Vertex xx = (Vertex) node;
-                if(xx.getLevel()==parent.getLevel()+1 /*&& xx.isLayedOut()*/){
+                if (xx.getLevel() == parent.getLevel() + 1 /*&& xx.isLayedOut()*/) {
                     return true;
                 }
 
@@ -81,29 +89,27 @@ public class DagLayout extends Pane
             return false;
         });
 
-        double highestX=0;
-        for (Node node : filtered)
-        {
-            if(node.getLayoutX()>highestX) {
+        double highestX = 0;
+        for (Node node : filtered) {
+            if (node.getLayoutX() > highestX) {
                 highestX = node.getLayoutX();
-                width=((Vertex)node).getLayoutBounds().getWidth();
+                width = ((Vertex) node).getLayoutBounds().getWidth();
             }
 
         }
-        System.out.println("width "+width);
-        width += highestX+horizontal_distance;
-        System.out.println("width "+width);
+        System.out.println("width " + width);
+        width += highestX + horizontal_distance;
+        System.out.println("width " + width);
 
-        if(width==0) width = parent.getBottomXProperty().doubleValue()-(parent.getKids().get(0).getWidth()/2);
-        if(parent.getKids().size()==1){
-            width=parent.getBottomXProperty().doubleValue()-(parent.getKidsSize()/2);
+        if (width == 0) width = parent.getBottomXProperty().doubleValue() - (parent.getKids().get(0).getWidth() / 2);
+        if (parent.getKids().size() == 1) {
+            width = parent.getBottomXProperty().doubleValue() - (parent.getKidsSize() / 2);
         }
-        for(Vertex vertex : parent.getKids()){
+        for (Vertex vertex : parent.getKids()) {
             vertex.relocate(width, height);
             vertex.setLayedOut(true);
-            width += vertex.getLayoutBounds().getWidth()+horizontal_distance;
-            if(parent.getKids().size()>0)
-            {
+            width += vertex.getLayoutBounds().getWidth() + horizontal_distance;
+            if (parent.getKids().size() > 0) {
                 centerParent(parent);
                 //parent.relocate(((width - horizontal_distance) / 2) - (parent.getWidth() / 2), parent.getLayoutY());
             }
@@ -111,40 +117,40 @@ public class DagLayout extends Pane
         }
 
     }
+
     private void centerParent(Vertex parent) {
-        double distance = (parent.getKids().get(parent.getKids().size()-1).getLayoutX()) - (parent.getKids().get(0).getLayoutX());
+        double distance = (parent.getKids().get(parent.getKids().size() - 1).getLayoutX()) - (parent.getKids().get(0).getLayoutX());
         double X;
-        X = parent.getKids().get(0).getLayoutX() +(distance/2);
+        X = parent.getKids().get(0).getLayoutX() + (distance / 2);
         if (X > parent.getLayoutX())
             parent.relocate(X, parent.getLayoutY());
         else
             centerKids(parent);
 
-        if(parent.getDad()!=null){
+        if (parent.getDad() != null) {
             centerParent(parent.getDad());
         }
     }
 
-    private void centerKids(Vertex parent)
-    {
-        double size =parent.getKidsSize();
-        size += horizontal_distance*(parent.getKids().size()-2);
-        System.out.println("size"+size);
-        double middle = size/2;
-        double left = parent.getLayoutX()-middle;
+    private void centerKids(Vertex parent) {
+        double size = parent.getKidsSize();
+        size += horizontal_distance * (parent.getKids().size() - 2);
+        System.out.println("size" + size);
+        double middle = size / 2;
+        double left = parent.getLayoutX() - middle;
         double d = left - parent.getKids().get(0).getLayoutX();
-        System.out.println("d is "+d);
-        if(d>0) {
-        for(Vertex v : parent.getKids())
-        {
-            System.out.println("v.getWidth " + v.getWidth());
-            v.relocate(left, v.getLayoutY());
-            System.out.println("left: " + left);
-            left += v.getWidth() + horizontal_distance;
-            System.out.println("left: " + left);
-        }
+        System.out.println("d is " + d);
+        if (d > 0) {
+            for (Vertex v : parent.getKids()) {
+                System.out.println("v.getWidth " + v.getWidth());
+                v.relocate(left, v.getLayoutY());
+                System.out.println("left: " + left);
+                left += v.getWidth() + horizontal_distance;
+                System.out.println("left: " + left);
+            }
         }
     }
+
     @Override
     protected double computeMaxWidth(double height) {
         return computePrefWidth(height);

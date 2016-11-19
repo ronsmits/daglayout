@@ -31,14 +31,13 @@ public class TestMain extends Application {
         Vertex k121 = new Vertex("1.2.1");
         Vertex k1211 = new Vertex("1.2.1.1");
         Vertex l1212 = new Vertex("1.2.1.2");
-//        l1212.addKid(new Vertex("1.2.1.2.1"));
+        l1212.addKid(new Vertex("1.2.1.2.1"));
         rootVertex.addKid(k12);
         k12.addKid(k121);
         k121.addKid(k1211);
         k121.addKid(l1212);
         Group group = new Group();
-        ScrollPane pane = new ScrollPane(group);
-        pane.setPrefSize(600,400);
+        ScrollPane pane = new ScrollPane();
         pane.setHbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
         pane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
         final Scene scene = new Scene(pane, 600, 400, Color.TRANSPARENT);
